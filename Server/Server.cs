@@ -62,7 +62,7 @@ public class Server
     {
         if (_threads.TryGetFree(out thread))
         {
-            Log($"Private thread {name} is created with admin {admin}");
+            Log($"Private thread {name} is created with admin {admin.Name}");
             thread!.Name = name;
             thread!.SetPrivate(admin);
             return true;
