@@ -1,3 +1,5 @@
+using System;
+
 namespace ChatApp;
 
 public class Pool<T> where T : class, IPoolElement, new()
@@ -14,18 +16,27 @@ public class Pool<T> where T : class, IPoolElement, new()
         }
     }
 
-    public T GetFree()
+    public bool TryGetFree(out T? result)
     {
-        for (int i = 0; i < _elements.Length; ++i) 
+        for (int i = 0; i < _elements.Length; ++i)
         {
             var element = _elements[i];
-            if (!element.IsSet())
+            lock (element)
             {
-                element.Set(i);
-                return element;
+                if (!element.IsSet())
+                {
+                    element.Set(i);
+                    result = element;
+                    return true;
+                }
             }
         }
-        // TODO: handle no free client
-        return null;
+        result = null;
+        return false;
+    }
+
+    public T[] GetActive()
+    {
+        return Array.FindAll(_elements, e => e.IsSet());
     }
 }

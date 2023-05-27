@@ -1,63 +1,73 @@
 ﻿using System;
-using System.Text;
 using System.Net;
-using System.Net.Sockets;
-using System.Threading;
 using System.Threading.Tasks;
+using CommandLineParser;
+using CustomOptionParser;
 
-public class ChatAppClient
-{
-    private TcpClient _client = new TcpClient();
-
-    public async Task Run(IPAddress ip, int socket)
-    {
-        await _client.ConnectAsync(ip, socket);
-        var socketListening = Task.Run(ListenSocket);
-        var consoleListening = Task.Run(ListenConsole);
-        Task.WaitAll(socketListening, consoleListening);
-    }
-
-    private async Task ListenSocket()
-    {
-        var buffer = new byte[1_024];
-        while (true)
-        {
-            var received = await _client.Client.ReceiveAsync(buffer, SocketFlags.None);
-            var msg = Encoding.UTF8.GetString(buffer, 0, received);
-            Console.WriteLine($"receive: {msg}");
-            Send("Thank you!");
-        }
-    }
-
-    private async Task ListenConsole()
-    {
-        while (true)
-        {
-            var msg = Console.ReadLine();
-            Send(msg);
-        }
-    }
-
-    private async Task Send(byte[] data)
-    {
-        await _client.Client.SendAsync(data, SocketFlags.None);
-    }
-
-    private async Task Send(string msg)
-    {
-        var data = Encoding.UTF8.GetBytes(msg);
-        await Send(data);
-    }
-}
+namespace ChatAppClient;
 
 class Program
 {
-    static async Task Main()
+    record Options
     {
-        IPAddress ip = IPAddress.Parse("127.0.0.1");
-        int socket = 5555;
+        public IPAddress? IpAddress { get; set; }
+        public int Socket { get; set; }
+        public string? Nickname { get; set; }
+        public string? Password { get; set; }
+    }
 
-        var client = new ChatAppClient();
-        await client.Run(ip, socket);
+    static CommandLineParser<Options> GetParser()
+    {
+        CommandLineParser<Options> parser = new();
+
+        parser.AddOption<int>()
+            .AddLongAlias("socket")
+            .AddShortAlias('s')
+            .SetPropertyPicker(o => o.Socket)
+            .SetValidator(socket => socket > 0)
+            .SetDefault(5555);
+
+        parser.AddOption<IPAddress>()
+            .AddLongAlias("ipAddress")
+            .AddLongAlias("ip")
+            .SetPropertyPicker(o => o.IpAddress!);
+
+        parser.AddOption<string>()
+            .AddLongAlias("nickname")
+            .AddShortAlias('n')
+            .SetPropertyPicker(o => o.Nickname!)
+            .SetDefault("");
+
+        parser.AddOption<string>()
+            .AddLongAlias("password")
+            .AddShortAlias('p')
+            .SetPropertyPicker(o => o.Password!)
+            .SetDefault("");
+
+        return parser;
+    }
+
+    static async Task Main(string[] args)
+    {
+        var parser = GetParser();
+
+        if (parser.TryParse(args, OptionParser.Create()))
+        {
+            var r = parser.Result;
+            var client = new Client();
+            Console.CancelKeyPress += delegate
+            {
+                client.Disconnect().Wait();
+            };
+            await client.Run(r.IpAddress!, r.Socket, r.Nickname!, r.Password);
+        }
+        else
+        {
+            foreach (var e in parser.Errors)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
     }
 }
