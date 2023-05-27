@@ -94,6 +94,7 @@ following commands to the server.
    - if you are not in a thread `NoCurrentThread` message is displayed.
  - `/leave` - leave the current thread.
  - `/exit` - disconnects from server and Terminates the client app.
+
 Everything other is considered to be a message and if you are in a thread the
 message will be sent to all clients in the thread or `NoCurrentThread` message
 is displayed.
