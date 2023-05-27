@@ -9,14 +9,10 @@ public interface ILogger
 
 public class ConsoleLogger : ILogger
 {
-    private StreamWriter _fileStream;
     private static ConsoleLogger? _instance;
     private static readonly object _lock = new object();
 
-    private ConsoleLogger()
-    {
-        _fileStream = new StreamWriter("server.log.txt");
-    }
+    private ConsoleLogger() { }
 
     public void Log(string message)
     {
