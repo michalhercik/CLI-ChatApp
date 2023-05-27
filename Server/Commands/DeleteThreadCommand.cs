@@ -13,7 +13,7 @@ public sealed class DeleteThreadCommand : Command
         {
             if (!TryDeleteThreadByName(sender, server, request))
             {
-                status = ResponseStatus.InvalidCommandParameter;
+                status = ResponseStatus.UnknownThread;
             }
         }
         else if (sender.IsInThread())
