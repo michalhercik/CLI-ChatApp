@@ -4,6 +4,7 @@
  - Communication is split into public or private threads.
  - Up to 100 clients and 20 threads.
  - Possible to setup a password for server.
+ - Few words about architecture [ARCHITECTURE.md](./ARCHITECTURE.md)
 
 ## Server usage
 
