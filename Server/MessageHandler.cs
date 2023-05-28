@@ -1,6 +1,7 @@
 using System.Text;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading.Tasks;
 using CommunicationProtocol;
 
 namespace ChatApp;
@@ -25,18 +26,18 @@ public sealed class MessageHandler : IMessageHandler
         _commands.Add(KickCommand.Code, new KickCommand());
     }
 
-    public void Handle(ChatClient sender, Server server, byte[] data, int length)
+    public async Task HandleAsync(ChatClient sender, Server server, byte[] data, int length)
     {
         string msg = Encoding.UTF8.GetString(data, 0, length);
 
         Request request = JsonSerializer.Deserialize<Request>(msg)!;
         if (_commands.TryGetValue(request.Command, out Command? command))
         {
-            command.Invoke(sender, server, request);
+            await Task.Run(() => command.Invoke(sender, server, request));
         }
         else
         {
-            _default.Invoke(sender, server, request);
+            await Task.Run(() => _default.Invoke(sender, server, request));
         }
     }
 }

@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using CommunicationProtocol;
 
 namespace ChatApp;
@@ -35,7 +34,7 @@ public sealed class KickCommand : Command
             status = ResponseStatus.MissingCommandParameter;
         }
         Response responseToSender = new Response(request.Id, status);
-        Task.Run(() => sender.Send(responseToSender));
+        sender.SendAsync(responseToSender).Wait();
     }
 }
 

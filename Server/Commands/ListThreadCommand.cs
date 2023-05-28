@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Threading.Tasks;
 using CommunicationProtocol;
 
 namespace ChatApp;
@@ -15,6 +14,6 @@ public sealed class ListThreadsCommand : Command
 
         Response response = new Response(request.Id, ResponseStatus.Success, threads);
 
-        Task.Run(() => sender.Send(response));
+        sender.SendAsync(response).Wait();
     }
 }

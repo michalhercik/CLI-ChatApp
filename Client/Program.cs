@@ -57,9 +57,9 @@ class Program
             var client = new Client();
             Console.CancelKeyPress += delegate
             {
-                client.Disconnect().Wait();
+                client.DisconnectAsync().Wait();
             };
-            await client.Run(r.IpAddress!, r.Socket, r.Nickname!, r.Password);
+            await client.RunAsync(r.IpAddress!, r.Socket, r.Nickname!, r.Password);
         }
         else
         {

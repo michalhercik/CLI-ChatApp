@@ -62,9 +62,9 @@ public class ChatClient : IPoolElement
         _client = client;
     }
 
-    public async Task Listen(Server server)
+    public async Task ListenAsync(Server server)
     {
-        if (!await HandShake(server))
+        if (!await HandShakeAsync(server))
         {
             Log("Invalid handshake");
             return;
@@ -76,12 +76,12 @@ public class ChatClient : IPoolElement
             var length = await (_client?.Client.ReceiveAsync(buffer, SocketFlags.None) ?? Task.FromResult(0));
             if (length > 0)
             {
-                _msgHandler.Handle(this, server, buffer, length);
+                await _msgHandler.HandleAsync(this, server, buffer, length);
             }
         }
     }
 
-    private async Task<bool> HandShake(Server server)
+    private async Task<bool> HandShakeAsync(Server server)
     {
         int length;
         var buffer = new byte[1_024];
@@ -91,17 +91,17 @@ public class ChatClient : IPoolElement
         _nick = request.Nick;
         if (server.Authenticate(request.Password))
         {
-            await Send(Response.Handshake(ResponseStatus.Success));
+            await SendAsync(Response.Handshake(ResponseStatus.Success));
             return true;
         }
         else
         {
-            await Send(Response.Handshake(ResponseStatus.InvalidPassword));
+            await SendAsync(Response.Handshake(ResponseStatus.InvalidPassword));
             return false;
         }
     }
 
-    public async Task Send(Response data)
+    public async Task SendAsync(Response data)
     {
         if (IsSet())
         {

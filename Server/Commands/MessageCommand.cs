@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CommunicationProtocol;
 
@@ -9,13 +10,16 @@ public sealed class MessageCommand : Command
     public override void Invoke(ChatClient sender, Server server, Request request)
     {
         ResponseStatus status;
+        List<Task> responses = new();
         var thread = sender.CurrentThread;
         if (thread is not null)
         {
             if (request.Data is not null)
             {
                 Response responseToThread = Response.Message(sender.Name, request.Data);
-                Task.Run(() => thread.SendToAllExcept(sender, responseToThread));
+                responses.Add(
+                        Task.Run(() => thread.SendToAllExcept(sender, responseToThread))
+                        );
                 status = ResponseStatus.Success;
             }
             else
@@ -28,7 +32,8 @@ public sealed class MessageCommand : Command
             status = ResponseStatus.NoCurrentThread;
         }
         var response = new Response(request.Id, status);
-        Task.Run(() => sender.Send(response));
+        responses.Add(sender.SendAsync(response));
+        Task.WaitAll(responses.ToArray());
     }
 }
 

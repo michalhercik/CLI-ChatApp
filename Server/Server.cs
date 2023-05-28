@@ -28,11 +28,11 @@ public class Server
         _password = password;
     }
 
-    public async Task Run()
+    public async Task RunAsync()
     {
         _listener.Start();
         Log("Server is running...");
-        await Task.Run(AcceptClients);
+        await AcceptClientsAsync();
     }
 
     public bool Authenticate(string? password)
@@ -85,7 +85,7 @@ public class Server
             .ToList();
     }
 
-    private async Task AcceptClients()
+    private async Task AcceptClientsAsync()
     {
         Log("accepting clients...");
         while (true)
@@ -95,7 +95,7 @@ public class Server
             {
                 client!.SetTcpClient(tcpClient);
                 Log($"New connection from: {client.IpAddress}");
-                var toSuppressWarning = Task.Run(() => client.Listen(this));
+                var toSuppressWarning = Task.Run(() => client.ListenAsync(this));
             }
             else
             {

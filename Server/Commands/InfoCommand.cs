@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using CommunicationProtocol;
 
 namespace ChatApp;
@@ -10,7 +9,7 @@ public sealed class InfoCommand : Command
     {
         var data = new ClientInfo(sender.Name, sender.CurrentThread?.Name);
         Response responseToSender = new Response(request.Id, ResponseStatus.Success, data);
-        Task.Run(() => sender.Send(responseToSender));
+        sender.SendAsync(responseToSender).Wait();
     }
 }
 

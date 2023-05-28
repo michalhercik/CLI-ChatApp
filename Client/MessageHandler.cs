@@ -26,11 +26,11 @@ public class MessageHandler : IMessageHandler
         _modules.Add(new Kick());
     }
 
-    public void Recieve(Response response)
+    public async Task RecieveAsync(Response response)
     {
         if (_modules.TryGet(response.RequestId, out IReciever module))
         {
-            module.Recieve(response);
+            await Task.Run(() => module.Recieve(response));
         }
         else
         {
@@ -38,7 +38,7 @@ public class MessageHandler : IMessageHandler
         }
     }
 
-    public void Send(Client client, string data)
+    public async Task SendAsync(Client client, string data)
     {
         if (data[0] == '/')
         {
@@ -51,7 +51,7 @@ public class MessageHandler : IMessageHandler
                     client.Stop();
                 }
                 var request = new Request(module.Id, module.Command, argument);
-                Task.Run(() => client.Send(request));
+                await client.SendAsync(request);
             }
             else
             {
@@ -62,7 +62,7 @@ public class MessageHandler : IMessageHandler
         {
             IReciever reciever = _modules.Get(0);
             var request = new Request(reciever.Id, CommandCode.SendMessage, data);
-            Task.Run(() => client.Send(request));
+            await client.SendAsync(request);
         }
     }
 

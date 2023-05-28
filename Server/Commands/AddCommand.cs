@@ -35,7 +35,7 @@ public sealed class AddCommand : Command
             status = ResponseStatus.MissingCommandParameter;
         }
         Response responseToSender = new Response(request.Id, status);
-        Task.Run(() => sender.Send(responseToSender));
+        sender.SendAsync(responseToSender).Wait();
     }
 }
 

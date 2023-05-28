@@ -92,15 +92,15 @@ public class ChatThread : IPoolElement
         return true;
     }
 
-    public async Task SendToAll(Response data)
+    public void SendToAll(Response data)
     {
         var tasks = new List<Task>();
         foreach (var member in _members)
         {
-            var task = Task.Run(() => member.Send(data));
+            var task = member.SendAsync(data);
             tasks.Add(task);
         }
-        await Task.WhenAll(tasks.ToArray());
+        Task.WaitAll(tasks.ToArray());
     }
 
     public void SendToAllExcept(ChatClient client, Response data)
@@ -110,7 +110,7 @@ public class ChatThread : IPoolElement
         {
             if (member.Name != client.Name)
             {
-                var task = Task.Run(() => member.Send(data));
+                var task = member.SendAsync(data);
                 tasks.Add(task);
             }
         }

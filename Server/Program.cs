@@ -48,7 +48,7 @@ class Program
             Options r = parser.Result;
 
             Server server = new Server(r.IpAddress!, r.Socket, r.Password);
-            await server.Run();
+            await server.RunAsync();
         }
         else
         {

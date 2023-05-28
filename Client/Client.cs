@@ -14,7 +14,7 @@ public class Client
     private TcpClient _client = new TcpClient();
     private IMessageHandler _moduleHandler = new MessageHandler();
 
-    public async Task Run(IPAddress ip, int socket, string nick, string? password)
+    public async Task RunAsync(IPAddress ip, int socket, string nick, string? password)
     {
         try
         {
@@ -29,7 +29,7 @@ public class Client
 
         if (await Handshake(nick, password))
         {
-            var socketListening = Task.Run(ListenSocket);
+            var socketListening = ListenSocket();
             var consoleListening = Task.Run(ListenConsole);
             Task.WaitAll(socketListening, consoleListening);
         }
@@ -43,11 +43,11 @@ public class Client
     private async Task<bool> Handshake(string nick, string? password)
     {
         var request = new SetupRequest(nick, password);
-        await Send(request);
+        await SendAsync(request);
         var buffer = new byte[1_024];
         try
         {
-            var response = await Receive();
+            var response = await ReceiveAsync();
             if (response is not null && response.Status.Ok)
             {
                 return true;
@@ -68,11 +68,11 @@ public class Client
         {
             try
             {
-                var response = await Receive();
+                var response = await ReceiveAsync();
                 if (!_running) break;
                 if (response is not null)
                 {
-                    _moduleHandler.Recieve(response);
+                    await _moduleHandler.RecieveAsync(response);
                 }
                 else
                 {
@@ -97,7 +97,7 @@ public class Client
             {
                 try
                 {
-                    _moduleHandler.Send(this, data);
+                    _moduleHandler.SendAsync(this, data).Wait();
                 }
                 catch (SocketException)
                 {
@@ -108,7 +108,7 @@ public class Client
         }
     }
 
-    private async Task<Response?> Receive()
+    private async Task<Response?> ReceiveAsync()
     {
         var buffer = new byte[1_024];
         var received = await _client.Client.ReceiveAsync(buffer, SocketFlags.None);
@@ -117,19 +117,19 @@ public class Client
         return JsonSerializer.Deserialize<Response>(msg);
     }
 
-    public async Task Send(object data)
+    public async Task SendAsync(object data)
     {
         var serialized = JsonSerializer.Serialize(data);
         var encoded = Encoding.UTF8.GetBytes(serialized);
         await _client.Client.SendAsync(encoded, SocketFlags.None);
     }
 
-    public async Task Disconnect()
+    public async Task DisconnectAsync()
     {
         if (_running)
         {
             var request = new Request(-1, CommandCode.Exit);
-            await Send(request);
+            await SendAsync(request);
             _running = false;
         }
     }

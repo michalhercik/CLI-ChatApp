@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using CommunicationProtocol;
 
 namespace ChatApp;
@@ -27,7 +26,7 @@ public sealed class NewThreadCommand : Command
             status = ResponseStatus.MissingCommandParameter;
         }
         var response = Response.RequestResponse(request.Id, status);
-        Task.Run(() => sender.Send(response));
+        sender.SendAsync(response).Wait();
     }
 }
 

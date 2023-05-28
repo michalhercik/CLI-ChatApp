@@ -1,4 +1,3 @@
-using System;
 using CommunicationProtocol;
 
 namespace ChatApp;
