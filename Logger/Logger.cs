@@ -10,7 +10,6 @@ public interface ILogger
 public class ConsoleLogger : ILogger
 {
     private static ConsoleLogger? _instance;
-    private static readonly object _lock = new object();
 
     private ConsoleLogger() { }
 
@@ -27,13 +26,7 @@ public class ConsoleLogger : ILogger
     {
         if (_instance == null)
         {
-            lock (_lock)
-            {
-                if (_instance == null)
-                {
-                    _instance = new ConsoleLogger();
-                }
-            }
+            _instance = new ConsoleLogger();
         }
         return _instance;
     }

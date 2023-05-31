@@ -1,9 +1,10 @@
+using System.Threading.Tasks;
 using CommunicationProtocol;
 
 namespace ChatApp;
 
 public abstract class Command
 {
-    public abstract void Invoke(ChatClient sender, Server server, Request request);
+    public abstract Task Invoke(ChatClient sender, Server server, Request request);
 }
 

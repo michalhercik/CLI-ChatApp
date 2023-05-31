@@ -6,7 +6,7 @@ namespace ChatApp;
 public sealed class AddCommand : Command
 {
     public static CommandCode Code => CommandCode.Add;
-    public override void Invoke(ChatClient sender, Server server, Request request)
+    public override async Task Invoke(ChatClient sender, Server server, Request request)
     {
         ResponseStatus status;
         var thread = sender.CurrentThread;
@@ -35,7 +35,7 @@ public sealed class AddCommand : Command
             status = ResponseStatus.MissingCommandParameter;
         }
         Response responseToSender = new Response(request.Id, status);
-        sender.SendAsync(responseToSender).Wait();
+        await sender.SendAsync(responseToSender);
     }
 }
 

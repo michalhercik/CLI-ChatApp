@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using CommunicationProtocol;
 
 namespace ChatApp;
@@ -5,7 +6,7 @@ namespace ChatApp;
 public sealed class KickCommand : Command
 {
     public static CommandCode Code => CommandCode.Kick;
-    public override void Invoke(ChatClient sender, Server server, Request request)
+    public override async Task Invoke(ChatClient sender, Server server, Request request)
     {
         ResponseStatus status;
         var thread = sender.CurrentThread;
@@ -23,6 +24,8 @@ public sealed class KickCommand : Command
             {
                 status = ResponseStatus.Success;
                 thread.Kick(client!);
+                var kickInfo = Response.Message(SystemMsg.KickFromThread(thread.Name!));
+                await client!.SendAsync(kickInfo);
             }
             else
             {
@@ -34,7 +37,7 @@ public sealed class KickCommand : Command
             status = ResponseStatus.MissingCommandParameter;
         }
         Response responseToSender = new Response(request.Id, status);
-        sender.SendAsync(responseToSender).Wait();
+        await sender.SendAsync(responseToSender);
     }
 }
 

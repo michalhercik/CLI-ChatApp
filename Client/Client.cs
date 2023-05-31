@@ -31,7 +31,7 @@ public class Client
         {
             var socketListening = ListenSocket();
             var consoleListening = Task.Run(ListenConsole);
-            Task.WaitAll(socketListening, consoleListening);
+            await Task.WhenAll(socketListening, consoleListening);
         }
         else
         {
@@ -93,7 +93,7 @@ public class Client
         while (_running)
         {
             var data = Console.ReadLine();
-            if (data is not null && _running)
+            if (data is not null && data.Length > 0 && _running)
             {
                 try
                 {

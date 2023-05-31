@@ -33,11 +33,11 @@ public sealed class MessageHandler : IMessageHandler
         Request request = JsonSerializer.Deserialize<Request>(msg)!;
         if (_commands.TryGetValue(request.Command, out Command? command))
         {
-            await Task.Run(() => command.Invoke(sender, server, request));
+            await command.Invoke(sender, server, request);
         }
         else
         {
-            await Task.Run(() => _default.Invoke(sender, server, request));
+            await _default.Invoke(sender, server, request);
         }
     }
 }

@@ -60,8 +60,8 @@ public class MessageHandler : IMessageHandler
         }
         else
         {
-            IReciever reciever = _modules.Get(0);
-            var request = new Request(reciever.Id, CommandCode.SendMessage, data);
+            _modules.TryGet("message", out IReciever reciever);
+            var request = new Request(reciever.Id, reciever.Command, data);
             await client.SendAsync(request);
         }
     }

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using CommunicationProtocol;
 
 namespace ChatApp;
@@ -5,7 +6,7 @@ namespace ChatApp;
 public sealed class NewPrivateCommand : Command
 {
     public static CommandCode Code => CommandCode.NewPrivate;
-    public override void Invoke(ChatClient sender, Server server, Request request)
+    public override async Task Invoke(ChatClient sender, Server server, Request request)
     {
         ResponseStatus status;
         if (request.Data is not null)
@@ -25,7 +26,7 @@ public sealed class NewPrivateCommand : Command
             status = ResponseStatus.MissingCommandParameter;
         }
         var response = Response.RequestResponse(request.Id, status);
-        sender.SendAsync(response).Wait();
+        await sender.SendAsync(response);
     }
 }
 

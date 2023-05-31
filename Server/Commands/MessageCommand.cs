@@ -7,19 +7,16 @@ namespace ChatApp;
 public sealed class MessageCommand : Command
 {
     public static CommandCode Code => CommandCode.SendMessage;
-    public override void Invoke(ChatClient sender, Server server, Request request)
+    public override async Task Invoke(ChatClient sender, Server server, Request request)
     {
         ResponseStatus status;
-        List<Task> responses = new();
         var thread = sender.CurrentThread;
         if (thread is not null)
         {
             if (request.Data is not null)
             {
                 Response responseToThread = Response.Message(sender.Name, request.Data);
-                responses.Add(
-                        Task.Run(() => thread.SendToAllExcept(sender, responseToThread))
-                        );
+                await Task.Run(() => thread.SendToAllExcept(sender, responseToThread));
                 status = ResponseStatus.Success;
             }
             else
@@ -32,8 +29,7 @@ public sealed class MessageCommand : Command
             status = ResponseStatus.NoCurrentThread;
         }
         var response = new Response(request.Id, status);
-        responses.Add(sender.SendAsync(response));
-        Task.WaitAll(responses.ToArray());
+        await sender.SendAsync(response);
     }
 }
 

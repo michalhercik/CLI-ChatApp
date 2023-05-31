@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using CommunicationProtocol;
 
 namespace ChatApp;
@@ -5,7 +6,7 @@ namespace ChatApp;
 public sealed class DeleteThreadCommand : Command
 {
     public static CommandCode Code => CommandCode.DeleteThread;
-    public override void Invoke(ChatClient sender, Server server, Request request)
+    public override async Task Invoke(ChatClient sender, Server server, Request request)
     {
         ResponseStatus status = ResponseStatus.Success;
         if (request.Data is not null)
@@ -24,7 +25,7 @@ public sealed class DeleteThreadCommand : Command
             status = ResponseStatus.MissingCommandParameter;
         }
         Response response = new Response(request.Id, status);
-        sender.SendAsync(response).Wait();
+        await sender.SendAsync(response);
     }
 
     private void DeleteCurrentThread(ChatClient sender, Server server, Request request)

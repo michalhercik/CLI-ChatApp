@@ -1,13 +1,14 @@
+using System.Threading.Tasks;
 using CommunicationProtocol;
 
 namespace ChatApp;
 
 public sealed class UnknownCommand : Command
 {
-    public override void Invoke(ChatClient sender, Server server, Request request)
+    public override async Task Invoke(ChatClient sender, Server server, Request request)
     {
         var response = new Response(request.Id, ResponseStatus.UnknownCommand);
-        sender.SendAsync(response).Wait();
+        await sender.SendAsync(response);
     }
 }
 
