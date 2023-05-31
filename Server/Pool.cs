@@ -37,6 +37,9 @@ public class Pool<T> where T : class, IPoolElement, new()
 
     public T[] GetActive()
     {
-        return Array.FindAll(_elements, e => e.IsSet());
+        return Array.FindAll(_elements, e =>
+        {
+            lock (e) return e.IsSet();
+        });
     }
 }
